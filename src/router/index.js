@@ -4,7 +4,6 @@ import ForgotPassword from "@/views/ForgotPassword.vue";
 import LoginPage from "@/views/LoginPage.vue";
 import Library from "@/views/Library.vue";
 
-
 const routes = [
     {path: '/Home',name: 'Home', component: Home},
     {path: '/ForgotPassword',name: 'ForgotPassword', component: ForgotPassword},

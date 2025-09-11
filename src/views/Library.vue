@@ -1,9 +1,7 @@
 <script setup>
 import {ref} from "vue";
 
-
 const title = ref("Our Readiculous Books for Readaholics");
-
 
 import breathe from "@/assets/breathe.jpg";
 import door from "@/assets/door.jpg";

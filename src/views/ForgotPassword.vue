@@ -1,4 +1,4 @@
-<script setup>
+n<script setup>
 import { ref, computed, defineEmits } from 'vue'
 
 const emit = defineEmits(['back'])

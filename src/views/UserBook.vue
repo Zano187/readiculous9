@@ -21,7 +21,10 @@
 
         <div class="form-group">
           <label>Genre</label>
-          <input v-model.trim="form.genre" type="text" placeholder="Enter genre (optional)" />
+          <select v-model="form.genre" required>
+            <option value="" disabled selected>Select a genre</option>
+            <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -33,7 +36,8 @@
           <label>Cover Image (optional)</label>
           <input type="file" accept="image/*" @change="handleImageChange" />
           <div v-if="imagePreview" class="image-preview">
-            <img :src="imagePreview" alt="Preview" />
+            <!-- Match grid book size -->
+            <img :src="imagePreview" alt="Preview" class="book-cover" />
           </div>
         </div>
 
@@ -46,20 +50,44 @@
       </form>
     </div>
 
-    <div class="books-list mt-10 max-w-4xl mx-auto">
+    <div class="books-list mt-10 max-w-6xl mx-auto">
       <h3 class="text-xl font-semibold mb-4">Existing Books</h3>
       <div v-if="books.length === 0" class="text-gray-500 text-center">No books posted yet.</div>
-      <ul v-else class="space-y-4">
-        <li v-for="book in books" :key="book.bookId" class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-          <div>
-            <p><strong>{{ book.title }}</strong> by {{ book.author }}</p>
-            <p class="text-sm text-gray-600">
-              Genre: {{ book.genre || 'N/A' }} | Published: {{ book.yearPublished || '—' }}
-            </p>
+
+      <!-- Grid layout for existing books -->
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+            v-for="book in books"
+            :key="book.bookId"
+            class="bg-white p-4 rounded-lg shadow flex flex-col items-center text-center"
+        >
+          <!-- Book image -->
+          <div class="w-full flex justify-center mb-3">
+            <img
+                v-if="book.image"
+                :src="'data:image/jpeg;base64,' + book.image"
+                alt="Book Cover"
+                class="book-cover rounded-lg"
+            />
+            <div
+                v-else
+                class="book-cover bg-gray-200 rounded-lg flex items-center justify-center text-gray-400"
+            >
+              No Image
+            </div>
           </div>
-          <button @click="deleteBook(book.bookId)" class="delete-btn">Delete</button>
-        </li>
-      </ul>
+
+          <!-- Book info -->
+          <p class="font-semibold">{{ book.title }}</p>
+          <p class="text-sm text-gray-600">by {{ book.author }}</p>
+          <p class="text-xs text-gray-500">
+            Genre: {{ book.genre || 'N/A' }} | Published: {{ book.yearPublished || '—' }}
+          </p>
+
+          <!-- Delete button -->
+          <button @click="deleteBook(book.bookId)" class="delete-btn mt-3 w-full">Delete</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -75,6 +103,21 @@ const form = reactive({
   yearPublished: new Date().getFullYear(),
   image: null,
 });
+
+const genres = [
+  "Fiction",
+  "Non-Fiction",
+  "Romance",
+  "Science Fiction",
+  "Fantasy",
+  "Mystery",
+  "Thriller",
+  "Biography",
+  "Self-Help",
+  "History",
+  "Poetry",
+  "Children's",
+];
 
 const imagePreview = ref(null);
 const loading = ref(false);
@@ -224,7 +267,8 @@ onMounted(fetchBooks);
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 0.9rem;
   border-radius: 6px;
@@ -237,7 +281,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   background: #e9e9e9;
 }
@@ -248,11 +293,11 @@ textarea:focus {
   justify-content: center;
 }
 
-.image-preview img {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+.book-cover {
+  width: 120px;
+  height: 160px;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .submit-btn {
@@ -265,11 +310,6 @@ textarea:focus {
   font-size: 1.1rem;
   cursor: pointer;
   width: 100%;
-  transition: background 0.3s ease-in-out;
-}
-
-.submit-btn:hover {
-  background-color: #333;
 }
 
 .reset-btn {
@@ -282,11 +322,6 @@ textarea:focus {
   font-size: 1rem;
   cursor: pointer;
   width: 100%;
-  transition: background 0.3s ease-in-out;
-}
-
-.reset-btn:hover {
-  background: #e0e0e0;
 }
 
 .success-msg {
@@ -307,10 +342,6 @@ textarea:focus {
   padding: 0.5rem 0.8rem;
   border-radius: 6px;
   font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.delete-btn:hover {
-  background-color: #c53030;
+  cursor: pointer;
 }
 </style>

@@ -11,7 +11,7 @@ import PreferencePage from "@/views/PreferencePage.vue"
 import Library from "@/views/Library.vue"
 import Profile from "@/views/Profile.vue"
 import UserBook from "@/views/UserBook.vue"
-import ContactInfo from "@/views/ContactInfo.vue"
+import Discussion from "@/views/Discussion.vue"
 
 // Define routes
 const routes = [
@@ -24,8 +24,9 @@ const routes = [
     { path: '/preference', name: 'Preference', component: PreferencePage },
     { path: '/library', name: 'Library', component: Library },
     { path: '/profile', name: 'Profile', component: Profile },
-    { path: '/user-book', name: 'UserBook', component: UserBook },
-    { path: '/contact', name: 'ContactInfo', component: ContactInfo },
+    { path: '/userbook', name: 'UserBook', component: UserBook },
+    {path: '/discussion', name: 'Discussion', component: Discussion},
+
 ]
 
 // Create router instance

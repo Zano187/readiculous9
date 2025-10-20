@@ -6,8 +6,6 @@
     </header>
 
     <section class="book-list">
-      <div v-if="loading" class="loading">Loading books...</div>
-
       <div v-for="book in books" :key="book.id" class="book-card">
         <h3>{{ book.title }}</h3>
         <p><strong>Author:</strong> {{ book.author }}</p>
@@ -26,7 +24,7 @@
         <!-- ✅ Like Button & Counter -->
         <div class="like-section">
           <button @click="likeBook(book)">👍 Like</button>
-          <span>{{ book.likes || 0 }} Likes</span>
+          <span>{{ book.likes }} Likes</span>
         </div>
 
         <!-- Comments -->
@@ -37,22 +35,17 @@
           ></textarea>
           <button @click="addComment(book)">Submit Comment</button>
 
-          <div v-if="book.comments && book.comments.length" class="comments-list">
+          <div v-if="book.comments.length" class="comments-list">
             <h4>💬 Comments</h4>
             <ul>
               <li v-for="(comment, index) in book.comments" :key="index">
-                {{ comment }} — <em>User</em>
+                {{ comment.comment }} — <em>{{ comment.authorName }}</em>
               </li>
             </ul>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Notification -->
-    <div v-if="notification.show" class="notification" :class="{ error: notification.error }">
-      {{ notification.message }}
-    </div>
   </div>
 </template>
 
@@ -62,143 +55,63 @@ export default {
   data() {
     return {
       books: [],
-      loading: false,
-      notification: {
-        show: false,
-        message: '',
-        error: false
-      }
     };
   },
   methods: {
     async fetchBooks() {
-      this.loading = true;
       try {
-        // Fetch books from your books API
-        const booksRes = await fetch("http://localhost:8080/api/books/getAll");
-        if (!booksRes.ok) throw new Error(`HTTP ${booksRes.status}`);
-
-        const booksData = await booksRes.json();
-
-        // Fetch discussions to get likes and comments
-        const discussionsRes = await fetch("http://localhost:8080/api/Discussion");
-        let discussionsData = [];
-
-        if (discussionsRes.ok) {
-          discussionsData = await discussionsRes.json();
-        }
-
-        // Combine book data with discussion data
-        this.books = booksData.map((book) => {
-          // Find discussion for this book (assuming discussion title matches book title)
-          const discussion = discussionsData.find(d => d.title === book.title);
-
-          return {
-            id: book.bookId,
-            title: book.title,
-            author: book.author,
-            description: book.description,
-            genre: book.genre,
-            year: book.yearPublished,
-            image: book.image || null,
-            likes: discussion ? discussion.likes : 0,
-            comments: discussion ? discussion.comments : [],
-            discussionId: discussion ? discussion.discussionId : null,
-            newComment: "",
-          };
-        });
+        const res = await fetch("http://localhost:8080/api/books/getAll");
+        const data = await res.json();
+        this.books = data.map((b) => ({
+          id: b.bookId,
+          title: b.title,
+          author: b.author,
+          description: b.description,
+          genre: b.genre,
+          year: b.yearPublished,
+          image: b.image || null,
+          likes: b.likes || 0,
+          comments: b.comments || [],
+          newComment: "",
+        }));
       } catch (err) {
         console.error(err);
-        this.showNotification("Failed to load books. Please try again later.", true);
-      } finally {
-        this.loading = false;
       }
     },
 
-    showNotification(message, isError = false) {
-      this.notification = {
-        show: true,
-        message: message,
-        error: isError
-      };
-
-      setTimeout(() => {
-        this.notification.show = false;
-      }, 3000);
-    },
-
+    // ✅ Fixed Like Button Endpoint
     async likeBook(book) {
       try {
-        // If book doesn't have a discussion yet, create one first
-        if (!book.discussionId) {
-          await this.createDiscussion(book);
-          // Refresh books to get the new discussion ID
-          await this.fetchBooks();
-          return;
-        }
-
         const res = await fetch(
-            `http://localhost:8080/api/Discussion/${book.discussionId}/like`,
+            `http://localhost:8080/api/Discussion/${book.id}/like`,
             { method: "POST" }
         );
 
         if (!res.ok) throw new Error("Failed to like book");
 
+        // Optional: get updated like count from backend
         const updated = await res.json();
-        book.likes = updated.likes;
-
-        this.showNotification(`You liked "${book.title}"!`);
+        book.likes = updated.likes ?? book.likes + 1;
       } catch (err) {
         console.error("Error liking book:", err);
-        this.showNotification("Failed to like book. Please try again.", true);
       }
+
     },
 
-    async createDiscussion(book) {
-      try {
-        const discussion = {
-          title: book.title,
-          description: `Discussion for ${book.title}`,
-          likes: 0,
-          comments: []
-        };
-
-        const res = await fetch("http://localhost:8080/api/Discussion", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(discussion)
-        });
-
-        if (!res.ok) throw new Error("Failed to create discussion");
-
-        return await res.json();
-      } catch (err) {
-        console.error("Error creating discussion:", err);
-        throw err;
-      }
-    },
-
+    // ✅ Fixed Comment Endpoint
     async addComment(book) {
       if (!book.newComment.trim()) {
-        this.showNotification("Please write a comment before submitting.", true);
+        alert("Please write a comment before submitting.");
         return;
       }
 
       try {
-        // If book doesn't have a discussion yet, create one first
-        if (!book.discussionId) {
-          await this.createDiscussion(book);
-          // Refresh books to get the new discussion ID
-          await this.fetchBooks();
-          return;
-        }
-
         const payload = {
-          comment: book.newComment.trim()
+          comment: book.newComment.trim(),
+          author: { userId: 1, name: "Demo User" },
         };
-
         const res = await fetch(
-            `http://localhost:8080/api/Discussion/${book.discussionId}/comment`,
+            `http://localhost:8080/api/Discussion/${book.id}/comment`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -206,18 +119,14 @@ export default {
             }
         );
 
-        if (!res.ok) throw new Error("Failed to add comment");
-
-        const updatedDiscussion = await res.json();
-
-        // Update the book's comments with the new comments from discussion
-        book.comments = updatedDiscussion.comments || [];
+        const savedComment = await res.json();
+        book.comments.push({
+          comment: savedComment.comment,
+          authorName: savedComment.author?.name || "Unknown",
+        });
         book.newComment = "";
-
-        this.showNotification(`Comment added to "${book.title}"!`);
       } catch (err) {
         console.error("Error adding comment:", err);
-        this.showNotification("Failed to add comment. Please try again.", true);
       }
     },
   },
@@ -331,27 +240,5 @@ export default {
   margin-bottom: 5px;
   padding: 8px;
   border-radius: 5px;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #6c757d;
-}
-
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 20px;
-  background-color: #28a745;
-  color: white;
-  border-radius: 5px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-}
-
-.notification.error {
-  background-color: #dc3545;
 }
 </style>

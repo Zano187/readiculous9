@@ -1,6 +1,7 @@
 <template>
   <div class="layout">
-    <Header />
+<!--    <Header />-->
+
 
     <main class="main-content">
       <router-view />
@@ -13,6 +14,7 @@
 <script setup>
 import Header from './Header.vue'
 import Footer from './Footer.vue'
+
 </script>
 
 <style scoped>

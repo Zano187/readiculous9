@@ -376,15 +376,90 @@
   </div>
 </template>
 
+<!--<script setup>-->
+<!--import { ref } from "vue";-->
+<!--import axios from "axios";-->
+<!--import { useRouter } from "vue-router";-->
+
+
+
+<!--const clubName = ref("");-->
+<!--const clubDescription = ref("");-->
+<!--const clubCreated = ref(false);-->
+<!--const inviteLink = ref("");-->
+<!--const loading = ref(false);-->
+
+<!--const router = useRouter();-->
+
+<!--async function createClub() {-->
+<!--  const user = JSON.parse(localStorage.getItem("user"));-->
+
+<!--  if (!user) {-->
+<!--    alert("You must be logged in");-->
+<!--    return;-->
+<!--  }-->
+
+<!--  console.log("User object before creating club:", user);-->
+<!--  const payload = {-->
+<!--    clubName: clubName.value,-->
+<!--    clubDescription: clubDescription.value,-->
+<!--    ownerId: user.id || user.userId, // must match DTO-->
+<!--  };-->
+
+<!--  try {-->
+<!--    const res = await fetch("http://localhost:8080/api/book-club/create", {-->
+<!--      method: "POST",-->
+<!--      headers: { "Content-Type": "application/json" },-->
+<!--      body: JSON.stringify(payload),-->
+<!--    });-->
+
+<!--    if (!res.ok) throw new Error(await res.text());-->
+<!--    const created = await res.json();-->
+
+<!--    inviteLink.value = `http://localhost:8080/join/${created.clubId}`;-->
+<!--    message.value = `✅ Book club created successfully (ID: ${created.clubId})`;-->
+<!--    clubCreated.value = true;-->
+
+<!--    //resetForm?.(); // optional, if you have a reset function-->
+
+<!--  } catch (err) {-->
+<!--    console.error(err);-->
+<!--    message.value = `❌ Error: ${err.message}`;-->
+<!--  } finally {-->
+<!--    loading.value = false;-->
+<!--  }-->
+
+<!--  // try {-->
+<!--  //   const response = await axios.post('http://localhost:8080/api/book-club/create', {-->
+<!--  //     clubName: clubName.value,-->
+<!--  //     clubDescription: clubDescription.value,-->
+<!--  //     owner: user.userId // must match DTO-->
+<!--  //   });-->
+<!--  //-->
+<!--  //   inviteLink.value = `http://localhost:8080/join/${response.data.clubId}`;-->
+<!--  //   clubCreated.value = true;-->
+<!--  //-->
+<!--  // } catch (error) {-->
+<!--  //   console.error("Error creating club:", error);-->
+<!--  //   alert("Something went wrong. Please try again.");-->
+<!--  // }-->
+<!--}-->
+
+<!--function goToAdmin() {-->
+<!--  router.push("/admin"); // redirects to AdminPage-->
+<!--}-->
+<!--</script>-->
+
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
 import { useRouter } from "vue-router";
 
 const clubName = ref("");
 const clubDescription = ref("");
 const clubCreated = ref(false);
 const inviteLink = ref("");
+const message = ref("");
+const loading = ref(false);
 
 const router = useRouter();
 
@@ -396,24 +471,50 @@ async function createClub() {
     return;
   }
 
+  console.log("User object before creating club:", user);
+
+  const payload = {
+    clubName: clubName.value,
+    clubDescription: clubDescription.value,
+    ownerId: user.id || user.userId, // ✅ must match backend DTO
+  };
+
+  loading.value = true;
+
   try {
-    const response = await axios.post("http://localhost:8080/book-club/create", {
-      clubName: clubName.value,
-      clubDescription: clubDescription.value,
-      userId: user.userId // must match DTO
+    console.log("Payload being sent to backend:", payload);
+
+    const res = await fetch("http://localhost:8080/api/book-club/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    inviteLink.value = `http://localhost:8080/join/${response.data.clubId}`;
+    if (!res.ok) throw new Error(await res.text());
+    const created = await res.json();
+
+    inviteLink.value = `http://localhost:8080/join/${created.clubId}`;
+    //inviteLink.value = `http://localhost:3000/join/${response.data.clubId}`;
+    message.value = `✅ Book club created successfully (ID: ${created.clubId})`;
     clubCreated.value = true;
 
-  } catch (error) {
-    console.error("Error creating club:", error);
-    alert("Something went wrong. Please try again.");
+    resetForm();
+  } catch (err) {
+    console.error(err);
+    message.value = `❌ Error: ${err.message}`;
+  } finally {
+    loading.value = false;
   }
 }
 
+function resetForm() {
+  clubName.value = "";
+  clubDescription.value = "";
+  inviteLink.value = "";
+}
+
 function goToAdmin() {
-  router.push("/admin"); // redirects to AdminPage
+  router.push("/admin");
 }
 </script>
 

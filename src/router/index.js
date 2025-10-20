@@ -11,6 +11,8 @@ import PreferencePage from "@/views/preferencepage.vue";
 import Library from "@/views/Library.vue";
 import Profile from "@/views/Profile.vue";
 import adminBook from "@/views/adminBook.vue";
+import About from "@/views/About.vue";
+import Contact from "@/views/Contact.vue";
 
 
 // Define routes
@@ -19,12 +21,14 @@ const routes = [
     { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
     { path: '/login', name: 'Login', component: LoginPage },
     { path: '/book', name: 'Book', component: Book },
-    { path: '/Createclub', name: 'CreateClub', component: CreateClub },
+    { path: '/create-club', name: 'CreateClub', component: CreateClub },
     { path: '/club/:id/admin', name: 'AdminPage', component: AdminPage },
     { path: '/preference', name: 'Preference', component: PreferencePage }, // <-- Make sure name matches router.push
     { path: '/library', name: 'Library', component: Library },
     { path: '/profile', name: 'Profile', component: Profile },
     { path: '/adminBook', name: 'adminBook', component: adminBook},
+    { path: '/about', name: 'About', component: About },
+    { path: '/contact', name: 'Contact', component: Contact },
 
 ];
 

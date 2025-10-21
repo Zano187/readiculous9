@@ -10,9 +10,9 @@ import AdminPage from "@/views/AdminPage.vue";
 import PreferencePage from "@/views/preferencepage.vue";
 import Library from "@/views/Library.vue";
 import Profile from "@/views/Profile.vue";
-import adminBook from "@/views/adminBook.vue";
+import UserBook from "@/views/UserBook.vue";
 import About from "@/views/About.vue";
-import Contact from "@/views/Contact.vue";
+import ContactInfo from "@/views/ContactInfo.vue";
 
 
 // Define routes
@@ -26,9 +26,9 @@ const routes = [
     { path: '/preference', name: 'Preference', component: PreferencePage }, // <-- Make sure name matches router.push
     { path: '/library', name: 'Library', component: Library },
     { path: '/profile', name: 'Profile', component: Profile },
-    { path: '/adminBook', name: 'adminBook', component: adminBook},
+    { path: '/userBook', name: 'UserBook', component: UserBook},
     { path: '/about', name: 'About', component: About },
-    { path: '/contact', name: 'Contact', component: Contact },
+    { path: '/contact', name: 'Contact', component: ContactInfo },
 
 ];
 

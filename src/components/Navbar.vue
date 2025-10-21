@@ -21,11 +21,11 @@
 <div class="right-section">
   <div class="nav-links">
     <router-link to="/" class="nav-link">Home</router-link>
-    <router-link to="/book" class="nav-link">Book</router-link>
-    <router-link to="/adminBook" class="nav-link">Admin book</router-link>
     <router-link to="/library" class="nav-link">Library</router-link>
     <router-link to="/contact" class="nav-link">Contact</router-link>
     <router-link to="/about" class="nav-link">About</router-link>
+    <router-link v-if="user" to="/book" class="nav-link">Book</router-link>
+    <router-link v-if="user" to="/userBook" class="nav-link">User book</router-link>
     <router-link v-if="user" to="/create-club" class="nav-link">Create Club</router-link>
   </div>
   <div class="logo-container">
@@ -49,7 +49,7 @@ onMounted(async () => {
   if (user) {
     try {
       // Fetch clubs and check if this user is a creator
-      const res = await axios.get("http://localhost:3000/api/book-club/all");
+      const res = await axios.get("http://localhost:8080/api/book-club/all");
       const myClub = res.data.find(club => club.userId === user.userId);
       if (myClub) {
         myClubId.value = myClub.clubId;

@@ -27,6 +27,7 @@
     <router-link v-if="user" to="/book" class="nav-link">Book</router-link>
     <router-link v-if="user" to="/userBook" class="nav-link">User book</router-link>
     <router-link v-if="user" to="/create-club" class="nav-link">Create Club</router-link>
+    <router-link v-if="user" to="/preference" class="nav-link">Preference page</router-link>
   </div>
   <div class="logo-container">
     <img src="@/assets/logo.jpeg" alt="Logo" class="logo" />

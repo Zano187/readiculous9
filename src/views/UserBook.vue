@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="auth-box">
-      <h2>Admin — Create Book</h2>
+      <h2>Create Book</h2>
 
       <form @submit.prevent="submitForm">
         <div class="form-group">
